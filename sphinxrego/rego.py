@@ -6,7 +6,7 @@ import os
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
-from opa import get_metadoc, flatten
+from sphinxrego.opa import get_metadoc, flatten
 
 import logging
 
