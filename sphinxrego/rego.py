@@ -19,7 +19,7 @@ def discover_policies(pathname: str, recursive: bool = False) -> Generator[str, 
     :return: paths to policies
     """
     policies = glob(pathname, recursive=recursive)
-    print(f"Found policy files: {policies}")
+    logging.info(f"Found policy files: {policies}")
     for p in policies:
         _, ext = os.path.splitext(p)
         if ext == ".rego":
@@ -38,7 +38,7 @@ class RegoDirective(Directive):
         if "policy" not in self.options:
             raise self.error(":policy: should be specified")
 
-        print(f"{self.__class__.__name__}.run with options: {self.options}")
+        logging.debug(f"{self.__class__.__name__}.run with options: {self.options}")
         recursive = "norecursive" not in self.options
         custom = "nocustom" not in self.options
 
@@ -47,17 +47,17 @@ class RegoDirective(Directive):
             policy_nodes = self.parse_rego(p, custom)
             all_nodes.extend(policy_nodes)
 
-        print(f"Generated {len(all_nodes)} nodes")
+        logging.debug(f"Generated {len(all_nodes)} nodes")
         return all_nodes
 
     def parse_rego(self, path: str, include_custom: bool = True):
-        print(f"Parsing .rego policy at path {path}")
+        logging.debug(f"Parsing .rego policy at path {path}")
 
         try:
             meta = get_metadoc(path)
             meta.pop("entrypoints", None)
         except ValueError as e:
-            print(str(e))
+            logging.debug(str(e))
             self.warning(str(e))
             return []
 
@@ -89,7 +89,7 @@ class RegoDirective(Directive):
                 section += nodes.paragraph(text=v)
             items.append(section)
 
-        print(f"Generated {len(items)} nodes")
+        logging.debug(f"Generated {len(items)} nodes")
         return items
 
 
