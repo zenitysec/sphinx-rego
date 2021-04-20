@@ -3,6 +3,11 @@ sphinx-rego
 
 A sphinx extension that automatically documents Open Policy Agent Rego policies using the _rego_metadoc_ property.
 
+# Prerequisites
+
+- Install [Open Policy Agent](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
+- Make sure the `opa` CLI is available
+
 # Installation:
 
 Install with PIP
