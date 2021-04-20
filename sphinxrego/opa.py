@@ -52,13 +52,20 @@ def _rego_json_to_obj(r: dict) -> dict:
         if _r["type"] == "null":
             return None
         if _r["type"] == "object":
-            return {_rego_json_to_obj(v1): _rego_json_to_obj(v2) for v1, v2 in _r["value"]}
+            return {_recu_rego_json_to_obj(v1): _recu_rego_json_to_obj(v2) for v1, v2 in _r["value"]}
         if _r["type"] == "array":
-            return [_rego_json_to_obj(v) for v in _r["value"]]
+            return [_recu_rego_json_to_obj(v) for v in _r["value"]]
         raise ValueError(f"Unable to parse object {_r}")
 
     # if `r` is a dict then `_recu_rego_json_to_obj(r)` is also a dict
-    return _recu_rego_json_to_obj(r)
+    new = _recu_rego_json_to_obj(r)
+
+    # verify structure
+    for attr in ("id", "description"):
+        if isinstance(new.get(attr, None), (dict, list)):
+            raise ValueError(f"{attr} property should not be an object or array")
+
+    return new
 
 
 def flatten(r: dict) -> dict:
