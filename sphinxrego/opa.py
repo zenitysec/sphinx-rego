@@ -39,18 +39,51 @@ def get_metadoc(path: str) -> dict:
     return _rego_json_to_obj(raw_metadoc)
 
 
-def _rego_json_to_obj(r: dict) -> Union[dict, list, str, bool, int, None]:
+def _rego_json_to_obj(r: dict) -> dict:
     """
     Recursively transform the JSON output of `OPA parse --format json` to a Python object
     :param r: raw JSON object
     :return: transformed object
     """
-    if r["type"] in ("string", "number", "boolean"):
-        return r["value"]
-    if r["type"] == "null":
-        return None
-    if r["type"] == "object":
-        return {_rego_json_to_obj(v1): _rego_json_to_obj(v2) for v1, v2 in r["value"]}
-    if r["type"] == "array":
-        return [_rego_json_to_obj(v) for v in r["value"]]
-    raise ValueError(f"Unable to parse object {r}")
+
+    def _recu_rego_json_to_obj(_r: dict) -> Union[dict, list, str, bool, int, None]:
+        if _r["type"] in ("string", "number", "boolean"):
+            return _r["value"]
+        if _r["type"] == "null":
+            return None
+        if _r["type"] == "object":
+            return {_rego_json_to_obj(v1): _rego_json_to_obj(v2) for v1, v2 in _r["value"]}
+        if _r["type"] == "array":
+            return [_rego_json_to_obj(v) for v in _r["value"]]
+        raise ValueError(f"Unable to parse object {_r}")
+
+    # if `r` is a dict then `_recu_rego_json_to_obj(r)` is also a dict
+    return _recu_rego_json_to_obj(r)
+
+
+def flatten(r: dict) -> dict:
+    """
+    Recursively transform Python nested object to one-layer dict
+    :param r: raw object
+    :return: one-layer dict
+    """
+
+    def _recu_flatten(_r: Union[dict, list, tuple], _new: dict, prefix: str = "") -> None:
+        if isinstance(_r, dict):
+            idx = _r.keys()
+        elif isinstance(_r, (list, tuple)):
+            idx = range(len(_r))
+        else:
+            raise ValueError(f"Got unexpected value type {type(_r)}")
+
+        for i in idx:
+            v = _r[i]
+            if isinstance(v, (str, int, bool)):
+                _new[prefix + str(i)] = v
+            else:
+                _recu_flatten(v, _new, prefix + str(i) + ".")
+
+    new = {}
+    _recu_flatten(r, new)
+
+    return new
