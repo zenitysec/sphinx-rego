@@ -78,7 +78,7 @@ def flatten(r: dict) -> dict:
 
         for i in idx:
             v = _r[i]
-            if isinstance(v, (str, int, bool)):
+            if isinstance(v, (str, int, bool, type(None))):
                 _new[prefix + str(i)] = v
             else:
                 _recu_flatten(v, _new, prefix + str(i) + ".")
