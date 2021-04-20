@@ -84,9 +84,10 @@ class RegoDirective(Directive):
         if include_custom and "custom" in meta:
             section = nodes.section(ids=["Properties:"])
             section += nodes.title(text="Properties")
-            for k, v in flatten(meta).items():
+            for k, v in flatten(meta["custom"]).items():
                 section += nodes.subtitle(text=k)
                 section += nodes.paragraph(text=v)
+            items.append(section)
 
         print(f"Generated {len(items)} nodes")
         return items
