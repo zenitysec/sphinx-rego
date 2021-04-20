@@ -61,36 +61,32 @@ class RegoDirective(Directive):
             self.warning(str(e))
             return []
 
-        items = []
-
-        # title
-        section = nodes.section(ids=["Policy:"])
-        section += nodes.title(text=meta.get("title", "Policy"))
-        items.append(section)
+        root = nodes.section(ids=[meta["title"], ])
+        root += nodes.title(text=meta["title"])
 
         # description
         if "description" in meta or "id" in meta:
-            section = nodes.section(ids=["Description:"])
-            section += nodes.title(text="Description")
             if "id" in meta:
+                section = nodes.section(ids=[f"{meta['title']}-ID", ])
                 section += nodes.subtitle(text="ID")
                 section += nodes.paragraph(text=meta["id"])
+                root += section
             if "description" in meta:
+                section = nodes.section(ids=[f"{meta['title']}-desc", ])
                 section += nodes.subtitle(text="Description")
                 section += nodes.paragraph(text=meta["description"])
-            items.append(section)
+                root += section
 
         # custom
         if include_custom and "custom" in meta:
-            section = nodes.section(ids=["Properties:"])
-            section += nodes.title(text="Properties")
             for k, v in flatten(meta["custom"]).items():
+                section = nodes.section(ids=[f"{meta['title']}-{k}", ])
                 section += nodes.subtitle(text=k)
                 section += nodes.paragraph(text=v)
-            items.append(section)
+                root += section
 
-        logging.debug(f"Generated {len(items)} nodes")
-        return items
+        logging.debug(f"Generated {len(root)} nodes")
+        return [root, ]
 
 
 def setup(app):
