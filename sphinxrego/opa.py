@@ -39,7 +39,7 @@ def get_metadoc(path: str) -> dict:
     return _rego_json_to_obj(raw_metadoc)
 
 
-def _rego_json_to_obj(r: dict) -> dict:
+def _rego_json_to_obj(r: dict, validate_structure: bool = True) -> dict:
     """
     Recursively transform the JSON output of `OPA parse --format json` to a Python object
     :param r: raw JSON object
@@ -61,11 +61,12 @@ def _rego_json_to_obj(r: dict) -> dict:
     new = _recu_rego_json_to_obj(r)
 
     # verify structure
-    if "title" not in new:
-        raise ValueError("Must specify title")
-    for attr in ("id", "description", "title"):
-        if isinstance(new.get(attr, None), (dict, list)):
-            raise ValueError(f"{attr} property should not be an object or array")
+    if validate_structure:
+        if "title" not in new:
+            raise ValueError("Must specify title")
+        for attr in ("id", "description", "title"):
+            if isinstance(new.get(attr, None), (dict, list)):
+                raise ValueError(f"{attr} property should not be an object or array")
 
     return new
 

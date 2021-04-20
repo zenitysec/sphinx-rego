@@ -15,7 +15,7 @@ from sphinxrego.opa import _rego_json_to_obj, flatten
     ({"type": "null", "value": {}}, None)
 ))
 def test_rego_json_to_obj(inp, exp):
-    got = _rego_json_to_obj(inp)
+    got = _rego_json_to_obj(inp, validate_structure=False)
     assert not DeepDiff(exp, got)
 
 
