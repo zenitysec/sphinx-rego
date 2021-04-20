@@ -1,7 +1,7 @@
 sphinx-rego
 ===============
 
-A sphinx extension that automatically documents Open Policy Agent Rego policies.
+A sphinx extension that automatically documents Open Policy Agent Rego policies using the _rego_metadoc_ property.
 
 # Installation:
 
