@@ -61,7 +61,9 @@ def _rego_json_to_obj(r: dict) -> dict:
     new = _recu_rego_json_to_obj(r)
 
     # verify structure
-    for attr in ("id", "description"):
+    if "title" not in new:
+        raise ValueError("Must specify title")
+    for attr in ("id", "description", "title"):
         if isinstance(new.get(attr, None), (dict, list)):
             raise ValueError(f"{attr} property should not be an object or array")
 
