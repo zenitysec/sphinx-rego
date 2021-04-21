@@ -7,7 +7,7 @@ A sphinx extension that automatically documents Open Policy Agent Rego policies 
 
 See [example/](/example) dir for a documented usage example.
 
-![Sphinx Docs](/example/assets/policy.html.png)
+![Sphinx Docs](/example/assets/policy.small.png)
 
 # Prerequisites
 
