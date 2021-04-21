@@ -27,6 +27,6 @@ Policy Documentation
    :policy: ../policy/**/*.rego
 ```
 
-And generates documentation accordingly:
+The extension generates documentation accordingly:
 
 ![Sphinx Docs](/example/assets/policy.html.png)
