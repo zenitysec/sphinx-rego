@@ -11,7 +11,7 @@ except subprocess.CalledProcessError:
     raise AssertionError("Could not find `opa`, please install from https://www.openpolicyagent.org/docs/latest/")
 
 
-def get_metadoc(path: str) -> dict:
+def _get_metadoc(path: str) -> dict:
     """
     Load and parse __rego_metadoc__ from path
     :param path: location of .rego file
@@ -71,7 +71,7 @@ def _rego_json_to_obj(r: dict, validate_structure: bool = True) -> dict:
     return new
 
 
-def flatten(r: dict) -> dict:
+def _flatten(r: dict) -> dict:
     """
     Recursively transform Python nested object to one-layer dict
     :param r: raw object
@@ -97,3 +97,26 @@ def flatten(r: dict) -> dict:
     _recu_flatten(r, new)
 
     return new
+
+
+def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple[str, dict, dict], None, None]:
+    """
+    Use glob to discover .rego policies at pathname
+    :param pathname: glob pathname
+    :param recursive: glob recursive parameter
+    :return: paths to policies, main __rego_metadata__ properties, custom properties
+    """
+    policies = glob(pathname, recursive=recursive)
+    logging.info(f"Found policy files: {policies}")
+    for p in policies:
+        _, ext = os.path.splitext(p)
+        if ext == ".rego":
+            try:
+                meta = _get_metadoc(p)
+                meta.pop("entrypoints", None)
+                custom = meta.pop("custom", {})
+            except ValueError:
+                logging.warning(str(e))
+                continue
+
+            yield p, meta, _flatten(custom)

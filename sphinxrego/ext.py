@@ -6,24 +6,9 @@ import os
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
-from sphinxrego.opa import get_metadoc, flatten
+from sphinxrego.opa import discover_policies
 
 import logging
-
-
-def discover_policies(pathname: str, recursive: bool = False) -> Generator[str, None, None]:
-    """
-    Use glob to discover .rego policies at pathname
-    :param pathname: glob pathname
-    :param recursive: glob recursive parameter
-    :return: paths to policies
-    """
-    policies = glob(pathname, recursive=recursive)
-    logging.info(f"Found policy files: {policies}")
-    for p in policies:
-        _, ext = os.path.splitext(p)
-        if ext == ".rego":
-            yield p
 
 
 class RegoDirective(Directive):
@@ -40,26 +25,24 @@ class RegoDirective(Directive):
 
         logging.debug(f"{self.__class__.__name__}.run with options: {self.options}")
         recursive = "norecursive" not in self.options
-        custom = "nocustom" not in self.options
+        include_custom = "nocustom" not in self.options
 
         all_nodes = []
-        for p in discover_policies(self.options["policy"], recursive):
-            policy_nodes = self.parse_rego(p, custom)
+        for p, meta, custom in discover_policies(self.options["policy"], recursive):
+            policy_nodes = self.parse_rego(p, meta, custom, include_custom)
             all_nodes.extend(policy_nodes)
 
         logging.debug(f"Generated {len(all_nodes)} nodes")
         return all_nodes
 
-    def parse_rego(self, path: str, include_custom: bool = True):
+    def parse_rego(self, path: str, meta: dict, custom: dict, include_custom: bool = True):
+        """
+        :param path: path to rego file
+        :param meta: __rego_metadoc__ main properties
+        :param custom: __rego_metadoc__ custom properties
+        :param include_custom: whether to include custom properties
+        """
         logging.debug(f"Parsing .rego policy at path {path}")
-
-        try:
-            meta = get_metadoc(path)
-            meta.pop("entrypoints", None)
-        except ValueError as e:
-            logging.debug(str(e))
-            self.warning(str(e))
-            return []
 
         root = nodes.section(ids=[meta["title"], ])
         root += nodes.title(text=meta["title"])
@@ -78,8 +61,8 @@ class RegoDirective(Directive):
                 root += section
 
         # custom
-        if include_custom and "custom" in meta:
-            for k, v in flatten(meta["custom"]).items():
+        if include_custom:
+            for k, v in custom.items():
                 section = nodes.section(ids=[f"{meta['title']}-{k}", ])
                 section += nodes.subtitle(text=k)
                 section += nodes.paragraph(text=v)

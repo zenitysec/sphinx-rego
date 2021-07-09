@@ -3,7 +3,7 @@ import pytest
 from deepdiff import DeepDiff
 
 # noinspection PyProtectedMember
-from sphinxrego.opa import _rego_json_to_obj, flatten
+from sphinxrego.opa import _rego_json_to_obj, _flatten
 
 
 @pytest.mark.parametrize("inp, exp", (
@@ -27,5 +27,5 @@ def test_rego_json_to_obj(inp, exp):
     ({"a": [1, {"a": 2}]}, {"a.0": 1, "a.1.a": 2})
 ))
 def test_flatten(inp, exp):
-    got = flatten(inp)
+    got = _flatten(inp)
     assert not DeepDiff(exp, got)
