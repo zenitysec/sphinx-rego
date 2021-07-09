@@ -29,7 +29,7 @@ def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple
                 meta.pop("entrypoints", None)
                 custom = meta.pop("custom", {})
             except ValueError as e:
-                logging.warning(str(e))
+                logging.info(str(e))
                 continue
 
             yield p, meta, _flatten(custom)
