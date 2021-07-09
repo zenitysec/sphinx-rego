@@ -1,8 +1,3 @@
-from typing import Generator
-
-from glob import glob
-import os
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 

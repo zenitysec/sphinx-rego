@@ -1,14 +1,38 @@
-from typing import Union
+from typing import Union, Generator, Tuple
 
 import os
 import subprocess
-
+from glob import glob
 import json
+import logging
 
 try:
     subprocess.check_call(["opa"], stdout=subprocess.PIPE)
 except subprocess.CalledProcessError:
     raise AssertionError("Could not find `opa`, please install from https://www.openpolicyagent.org/docs/latest/")
+
+
+def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple[str, dict, dict], None, None]:
+    """
+    Use glob to discover .rego policies at pathname
+    :param pathname: glob pathname
+    :param recursive: glob recursive parameter
+    :return: paths to policies, main __rego_metadata__ properties, custom properties
+    """
+    policies = glob(pathname, recursive=recursive)
+    logging.info(f"Found policy files: {policies}")
+    for p in policies:
+        _, ext = os.path.splitext(p)
+        if ext == ".rego":
+            try:
+                meta = _get_metadoc(p)
+                meta.pop("entrypoints", None)
+                custom = meta.pop("custom", {})
+            except ValueError as e:
+                logging.warning(str(e))
+                continue
+
+            yield p, meta, _flatten(custom)
 
 
 def _get_metadoc(path: str) -> dict:
@@ -98,25 +122,3 @@ def _flatten(r: dict) -> dict:
 
     return new
 
-
-def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple[str, dict, dict], None, None]:
-    """
-    Use glob to discover .rego policies at pathname
-    :param pathname: glob pathname
-    :param recursive: glob recursive parameter
-    :return: paths to policies, main __rego_metadata__ properties, custom properties
-    """
-    policies = glob(pathname, recursive=recursive)
-    logging.info(f"Found policy files: {policies}")
-    for p in policies:
-        _, ext = os.path.splitext(p)
-        if ext == ".rego":
-            try:
-                meta = _get_metadoc(p)
-                meta.pop("entrypoints", None)
-                custom = meta.pop("custom", {})
-            except ValueError:
-                logging.warning(str(e))
-                continue
-
-            yield p, meta, _flatten(custom)
