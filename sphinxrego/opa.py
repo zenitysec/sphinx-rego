@@ -6,6 +6,8 @@ from glob import glob
 import json
 import logging
 
+logger = logging.getLogger("sphinx-rego")
+
 try:
     subprocess.check_call(["opa"], stdout=subprocess.PIPE)
 except subprocess.CalledProcessError:
@@ -20,7 +22,7 @@ def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple
     :return: paths to policies, main __rego_metadata__ properties, custom properties
     """
     policies = glob(pathname, recursive=recursive)
-    logging.info(f"Found policy files: {policies}")
+    logger.info(f"Found policy files: {policies}")
     for p in policies:
         _, ext = os.path.splitext(p)
         if ext == ".rego":
@@ -29,7 +31,7 @@ def discover_policies(pathname: str, recursive: bool = False) -> Generator[Tuple
                 meta.pop("entrypoints", None)
                 custom = meta.pop("custom", {})
             except ValueError as e:
-                logging.info(str(e))
+                logger.info(str(e))
                 continue
 
             yield p, meta, _flatten(custom)

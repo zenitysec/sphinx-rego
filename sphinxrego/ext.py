@@ -5,6 +5,8 @@ from sphinxrego.opa import discover_policies
 
 import logging
 
+logger = logging.getLogger("sphinx-rego")
+
 
 class RegoDirective(Directive):
     has_content = True
@@ -18,7 +20,7 @@ class RegoDirective(Directive):
         if "policy" not in self.options:
             raise self.error(":policy: should be specified")
 
-        logging.debug(f"{self.__class__.__name__}.run with options: {self.options}")
+        logger.debug(f"{self.__class__.__name__}.run with options: {self.options}")
         recursive = "norecursive" not in self.options
         include_custom = "nocustom" not in self.options
 
@@ -27,7 +29,7 @@ class RegoDirective(Directive):
             policy_nodes = self.parse_rego(p, meta, custom, include_custom)
             all_nodes.extend(policy_nodes)
 
-        logging.debug(f"Generated {len(all_nodes)} nodes")
+        logger.debug(f"Generated {len(all_nodes)} nodes")
         return all_nodes
 
     def parse_rego(self, path: str, meta: dict, custom: dict, include_custom: bool = True):
@@ -37,7 +39,7 @@ class RegoDirective(Directive):
         :param custom: __rego_metadoc__ custom properties
         :param include_custom: whether to include custom properties
         """
-        logging.debug(f"Parsing .rego policy at path {path}")
+        logger.debug(f"Parsing .rego policy at path {path}")
 
         root = nodes.section(ids=[meta["title"], ])
         root += nodes.title(text=meta["title"])
@@ -63,7 +65,7 @@ class RegoDirective(Directive):
                 section += nodes.paragraph(text=v)
                 root += section
 
-        logging.debug(f"Generated {len(root)} nodes")
+        logger.debug(f"Generated {len(root)} nodes")
         return [root, ]
 
 
