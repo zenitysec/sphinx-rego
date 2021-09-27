@@ -3,6 +3,8 @@ sphinx-rego
 
 A sphinx extension that automatically documents Open Policy Agent Rego policies using the _rego_metadoc_ property.
 
+Maintained by [Zenity](https://zenity.io).
+
 # Example
 
 See [example/](/example) dir for a documented usage example.
