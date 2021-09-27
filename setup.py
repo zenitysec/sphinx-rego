@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="sphinx-rego",
-    version="0.1.5",
+    version="0.1.6",
     packages=find_packages(),
     install_requires=[
         "docutils"
@@ -11,8 +11,8 @@ setup(
     license="MIT",
     author="Zenity",
     author_email="join@zenity.io",
-    description="A sphinx extension that automatically documents Open Policy Agent Rego policies using the rego_metadoc property. Maintained by [Zenity](https://zenity.io).",
-    long_description="""A sphinx extension that automatically documents Open Policy Agent Rego policies using the rego_metadoc property.\nFor installation and usage details, see https://github.com/zenitysec/sphinx-rego.\nMaintained by [Zenity](https://zenity.io).""",
+    description="A sphinx extension that automatically documents Open Policy Agent Rego policies using the rego_metadoc property. Maintained by Zenity, learn more at https://zenity.io.",
+    long_description="""A sphinx extension that automatically documents Open Policy Agent Rego policies using the rego_metadoc property.\nFor installation and usage details, see https://github.com/zenitysec/sphinx-rego.\nMaintained by Zenity, learn more at https://zenity.io.""",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
