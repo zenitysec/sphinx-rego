@@ -77,11 +77,19 @@ def _rego_json_to_obj(r: dict, validate_structure: bool = True) -> dict:
             return _r["value"]
         if _r["type"] == "null":
             return None
+        if _r["type"] == "var":
+            return _r["value"]  # variables are stores as strings
+        if _r["type"] == "ref" and isinstance(_r["value"], list) and len(_r["value"]) >= 1:
+            return ".".join([_recu_rego_json_to_obj(_r_ref_part) for _r_ref_part in _r["value"]])
+        if _r["type"] == "call" and isinstance(_r["value"], list) and len(_r["value"]) >= 1:
+            func_name = _recu_rego_json_to_obj(_r["value"][0])
+            func_args = ",".join([_recu_rego_json_to_obj(_r_arg) for _r_arg in _r["value"][1:]])
+            return  f"{func_name}({func_args})"
         if _r["type"] == "object":
             return {_recu_rego_json_to_obj(v1): _recu_rego_json_to_obj(v2) for v1, v2 in _r["value"]}
         if _r["type"] == "array":
             return [_recu_rego_json_to_obj(v) for v in _r["value"]]
-        raise ValueError(f"Unable to parse object {_r}")
+        raise ValueError(f"Unable to parse type: {_r['type']}, object {_r}")
 
     # if `r` is a dict then `_recu_rego_json_to_obj(r)` is also a dict
     new = _recu_rego_json_to_obj(r)
